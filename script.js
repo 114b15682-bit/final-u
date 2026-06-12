@@ -7,22 +7,21 @@ let theme = 0;
 let blackHole = false;
 let shake = 0;
 
-let names = [
-  "Cyber Forest",
-  "Neon Ocean",
-  "Crystal Galaxy",
-  "Lost Dimension",
-  "Infinite Aurora"
-];
-
-let currentDream = "";
-
 let colors = [
   [0,255,255],
   [255,0,255],
   [0,255,120],
   [255,180,0]
 ];
+
+let dreams = [
+  "Cyber Forest",
+  "Neon Ocean",
+  "Crystal Galaxy",
+  "Lost Dimension"
+];
+
+let currentDream = "";
 
 function setup(){
   createCanvas(windowWidth, windowHeight);
@@ -36,7 +35,7 @@ function setup(){
     });
   }
 
-  currentDream = random(names);
+  currentDream = random(dreams);
 }
 
 function draw(){
@@ -51,20 +50,27 @@ function draw(){
   background(5,10,20,25);
 
   shake *= 0.9;
-
   translate(random(-shake,shake), random(-shake,shake));
 
-  // 🌟 particles
+  drawParticles();
+  drawOrbs();
+  drawPortal(c);
+
+  drawUI();
+}
+
+function drawParticles(){
+
   for(let p of particles){
 
-    fill(255,120);
     noStroke();
-
+    fill(255,120);
     circle(p.x,p.y,p.s);
 
     if(blackHole){
       let dx = width/2 - p.x;
       let dy = height/2 - p.y;
+
       p.x += dx * 0.01;
       p.y += dy * 0.01;
     }
@@ -76,12 +82,15 @@ function draw(){
       p.x = random(width);
     }
   }
+}
 
-  // 💫 mouse orbs
+function drawOrbs(){
+
   for(let i=orbs.length-1;i>=0;i--){
 
-    fill(0,255,255,orbs[i].life);
     noStroke();
+    fill(0,255,255,orbs[i].life);
+
     circle(orbs[i].x,orbs[i].y,20);
 
     orbs[i].life -= 5;
@@ -90,11 +99,82 @@ function draw(){
       orbs.splice(i,1);
     }
   }
+}
 
-  // 🌀 portal
-  drawPortal(c);
+function drawPortal(c){
 
-  // ✨ UI text
+  push();
+  translate(width/2, height/2);
+
+  drawingContext.shadowBlur = 60;
+  drawingContext.shadowColor =
+    `rgb(${c[0]},${c[1]},${c[2]})`;
+
+  let t = frameCount * 0.01;
+
+  noFill();
+
+  strokeWeight(2);
+
+  // 🌌 多層傳送門
+  for(let i=0;i<5;i++){
+
+    stroke(c[0],c[1],c[2],80-i*12);
+
+    beginShape();
+
+    for(let a=0;a<TWO_PI;a+=0.05){
+
+      let n = noise(
+        cos(a)*2 + t,
+        sin(a)*2 + t
+      );
+
+      let r = 160 + i*25 + n*90;
+
+      let x = cos(a + t*0.5) * r;
+      let y = sin(a + t*0.5) * r;
+
+      vertex(x,y);
+    }
+
+    endShape(CLOSE);
+  }
+
+  // ⚡ 核心漩渦
+  stroke(c[0],c[1],c[2]);
+  strokeWeight(3);
+
+  beginShape();
+
+  for(let a=0;a<TWO_PI;a+=0.04){
+
+    let n = noise(
+      cos(a) + t*2,
+      sin(a) + t*2
+    );
+
+    let r = 90 + n*140;
+
+    let x = cos(a + t*2) * r;
+    let y = sin(a + t*2) * r;
+
+    vertex(x,y);
+  }
+
+  endShape(CLOSE);
+
+  // 🔵 核心能量
+  noStroke();
+  fill(c[0],c[1],c[2],150);
+
+  circle(0,0,30 + sin(frameCount*0.1)*10);
+
+  pop();
+}
+
+function drawUI(){
+
   fill(255);
   textAlign(CENTER);
 
@@ -105,44 +185,9 @@ function draw(){
   text("Space: Theme | B: Black Hole | Click: Rift", width/2, height-40);
 }
 
-function drawPortal(c){
-
-  push();
-  translate(width/2, height/2);
-
-  drawingContext.shadowBlur = 40;
-  drawingContext.shadowColor = `rgb(${c[0]},${c[1]},${c[2]})`;
-
-  stroke(c[0],c[1],c[2]);
-  strokeWeight(2);
-  noFill();
-
-  rotate(frameCount * 0.01);
-
-  // 🌌 multi rings
-  for(let i=0;i<4;i++){
-    ellipse(0,0,200+i*60);
-  }
-
-  beginShape();
-  for(let a=0;a<TWO_PI;a+=0.06){
-
-    let n = noise(
-      cos(a)+frameCount*0.01,
-      sin(a)+frameCount*0.01
-    );
-
-    let r = 180 + n*90 + map(mouseX,0,width,-30,30);
-
-    vertex(cos(a)*r, sin(a)*r);
-  }
-  endShape(CLOSE);
-
-  pop();
-}
-
-// 👆 click rift
+// 👆 click
 function mousePressed(){
+
   if(!started) return;
 
   orbs.push({
@@ -159,11 +204,15 @@ function keyPressed(){
 
   if(key === " "){
     theme = (theme + 1) % colors.length;
-    currentDream = random(names);
+    currentDream = random(dreams);
   }
 
   if(key === "b"){
     blackHole = !blackHole;
+  }
+
+  if(key === "s"){
+    saveCanvas("dream_portal","png");
   }
 }
 
