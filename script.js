@@ -36,6 +36,17 @@ function setup(){
   }
 
   currentDream = random(dreams);
+
+  // 📖 點擊 HUD 關閉
+  document.getElementById("hud").onclick = () => {
+    let hud = document.getElementById("hud");
+
+    hud.style.opacity = 0;
+
+    setTimeout(() => {
+      hud.style.display = "none";
+    }, 800);
+  };
 }
 
 function draw(){
@@ -55,10 +66,10 @@ function draw(){
   drawParticles();
   drawOrbs();
   drawPortal(c);
-
   drawUI();
 }
 
+/* 🌌 粒子 */
 function drawParticles(){
 
   for(let p of particles){
@@ -68,6 +79,7 @@ function drawParticles(){
     circle(p.x,p.y,p.s);
 
     if(blackHole){
+
       let dx = width/2 - p.x;
       let dy = height/2 - p.y;
 
@@ -84,6 +96,7 @@ function drawParticles(){
   }
 }
 
+/* 💫 能量球 */
 function drawOrbs(){
 
   for(let i=orbs.length-1;i>=0;i--){
@@ -101,6 +114,7 @@ function drawOrbs(){
   }
 }
 
+/* 🌀 傳送門 */
 function drawPortal(c){
 
   push();
@@ -113,10 +127,9 @@ function drawPortal(c){
   let t = frameCount * 0.01;
 
   noFill();
-
   strokeWeight(2);
 
-  // 🌌 多層傳送門
+  // 多層能量圈
   for(let i=0;i<5;i++){
 
     stroke(c[0],c[1],c[2],80-i*12);
@@ -141,7 +154,7 @@ function drawPortal(c){
     endShape(CLOSE);
   }
 
-  // ⚡ 核心漩渦
+  // 核心漩渦
   stroke(c[0],c[1],c[2]);
   strokeWeight(3);
 
@@ -164,7 +177,7 @@ function drawPortal(c){
 
   endShape(CLOSE);
 
-  // 🔵 核心能量
+  // 核心能量
   noStroke();
   fill(c[0],c[1],c[2],150);
 
@@ -173,6 +186,7 @@ function drawPortal(c){
   pop();
 }
 
+/* 📜 UI */
 function drawUI(){
 
   fill(255);
@@ -185,7 +199,7 @@ function drawUI(){
   text("Space: Theme | B: Black Hole | Click: Rift", width/2, height-40);
 }
 
-// 👆 click
+/* 👆 點擊 */
 function mousePressed(){
 
   if(!started) return;
@@ -199,7 +213,7 @@ function mousePressed(){
   shake = 15;
 }
 
-// ⌨ controls
+/* ⌨ 控制 */
 function keyPressed(){
 
   if(key === " "){
@@ -216,8 +230,9 @@ function keyPressed(){
   }
 }
 
-// 🚀 start
+/* 🚀 開始 */
 window.onload = () => {
+
   document.getElementById("startBtn").onclick = () => {
     document.getElementById("landing").style.display = "none";
     started = true;
