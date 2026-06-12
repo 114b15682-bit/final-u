@@ -1,29 +1,42 @@
 let started = false;
 
+let particles = [];
+let orbs = [];
+
 let theme = 0;
+let blackHole = false;
+let shake = 0;
+
+let names = [
+  "Cyber Forest",
+  "Neon Ocean",
+  "Crystal Galaxy",
+  "Lost Dimension",
+  "Infinite Aurora"
+];
+
+let currentDream = "";
 
 let colors = [
   [0,255,255],
   [255,0,255],
-  [0,255,100],
+  [0,255,120],
   [255,180,0]
 ];
 
-let particles = [];
-
 function setup(){
+  createCanvas(windowWidth, windowHeight);
 
-  createCanvas(windowWidth,windowHeight);
-
-  for(let i=0;i<300;i++){
-
+  for(let i=0;i<400;i++){
     particles.push({
       x:random(width),
       y:random(height),
-      s:random(1,4),
-      speed:random(0.5,2)
+      s:random(1,3),
+      sp:random(0.5,2)
     });
   }
+
+  currentDream = random(names);
 }
 
 function draw(){
@@ -33,141 +46,135 @@ function draw(){
     return;
   }
 
-  background(5,10,20,40);
-
   let c = colors[theme];
 
+  background(5,10,20,25);
+
+  shake *= 0.9;
+
+  translate(random(-shake,shake), random(-shake,shake));
+
+  // 🌟 particles
   for(let p of particles){
 
     fill(255,120);
     noStroke();
 
-    circle(
-      p.x,
-      p.y,
-      p.s
-    );
+    circle(p.x,p.y,p.s);
 
-    p.y -= p.speed;
+    if(blackHole){
+      let dx = width/2 - p.x;
+      let dy = height/2 - p.y;
+      p.x += dx * 0.01;
+      p.y += dy * 0.01;
+    }
+
+    p.y -= p.sp;
 
     if(p.y < 0){
-
       p.y = height;
       p.x = random(width);
     }
   }
 
+  // 💫 mouse orbs
+  for(let i=orbs.length-1;i>=0;i--){
+
+    fill(0,255,255,orbs[i].life);
+    noStroke();
+    circle(orbs[i].x,orbs[i].y,20);
+
+    orbs[i].life -= 5;
+
+    if(orbs[i].life < 0){
+      orbs.splice(i,1);
+    }
+  }
+
+  // 🌀 portal
+  drawPortal(c);
+
+  // ✨ UI text
+  fill(255);
+  textAlign(CENTER);
+
+  textSize(20);
+  text(currentDream, width/2, 60);
+
+  textSize(14);
+  text("Space: Theme | B: Black Hole | Click: Rift", width/2, height-40);
+}
+
+function drawPortal(c){
+
   push();
+  translate(width/2, height/2);
 
-  translate(
-    width/2,
-    height/2
-  );
+  drawingContext.shadowBlur = 40;
+  drawingContext.shadowColor = `rgb(${c[0]},${c[1]},${c[2]})`;
 
-  rotate(frameCount*0.01);
-
+  stroke(c[0],c[1],c[2]);
+  strokeWeight(2);
   noFill();
 
-  strokeWeight(3);
+  rotate(frameCount * 0.01);
 
-  stroke(
-    c[0],
-    c[1],
-    c[2]
-  );
-
-  drawingContext.shadowBlur = 30;
-
-  drawingContext.shadowColor =
-  `rgb(${c[0]},${c[1]},${c[2]})`;
+  // 🌌 multi rings
+  for(let i=0;i<4;i++){
+    ellipse(0,0,200+i*60);
+  }
 
   beginShape();
-
-  for(
-    let a=0;
-    a<TWO_PI;
-    a+=0.08
-  ){
+  for(let a=0;a<TWO_PI;a+=0.06){
 
     let n = noise(
       cos(a)+frameCount*0.01,
       sin(a)+frameCount*0.01
     );
 
-    let r =
-      180 +
-      n*80 +
-      map(mouseX,0,width,-40,40);
+    let r = 180 + n*90 + map(mouseX,0,width,-30,30);
 
-    let x = cos(a)*r;
-    let y = sin(a)*r;
-
-    vertex(x,y);
+    vertex(cos(a)*r, sin(a)*r);
   }
-
   endShape(CLOSE);
 
-  ellipse(0,0,450);
-  ellipse(0,0,520);
-
   pop();
-
-  fill(255);
-
-  textSize(18);
-
-  textAlign(CENTER);
-
-  text(
-    "SPACE = Change Dream",
-    width/2,
-    height-40
-  );
 }
 
+// 👆 click rift
 function mousePressed(){
-
   if(!started) return;
 
-  for(let i=0;i<50;i++){
+  orbs.push({
+    x:mouseX,
+    y:mouseY,
+    life:255
+  });
 
-    particles.push({
-      x:mouseX,
-      y:mouseY,
-      s:random(2,6),
-      speed:random(1,4)
-    });
-  }
+  shake = 15;
 }
 
+// ⌨ controls
 function keyPressed(){
 
   if(key === " "){
+    theme = (theme + 1) % colors.length;
+    currentDream = random(names);
+  }
 
-    theme++;
-
-    theme %= colors.length;
+  if(key === "b"){
+    blackHole = !blackHole;
   }
 }
 
+// 🚀 start
 window.onload = () => {
-
-  document
-  .getElementById("startBtn")
-  .addEventListener("click",()=>{
-
-      document
-      .getElementById("landing")
-      .style.display="none";
-
-      started = true;
-  });
+  document.getElementById("startBtn").onclick = () => {
+    document.getElementById("landing").style.display = "none";
+    started = true;
+  };
 };
 
 function windowResized(){
-
-  resizeCanvas(
-    windowWidth,
-    windowHeight
-  );
+  resizeCanvas(windowWidth, windowHeight);
 }
