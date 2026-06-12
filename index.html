@@ -7,27 +7,33 @@
 <title>Dream Dimension Portal</title>
 
 <link rel="stylesheet" href="style.css">
-<h4><pr>此作品模擬一個「可互動的夢境入口」，使用者不再只是觀看畫面，而是影響空間本身的變化。
-傳送門會隨時間流動、扭曲，並對使用者操作產生即時反應
-  
-🖱 滑鼠點擊
-產生能量裂縫（Rift），形成短暫的空間破裂效果
-⌨ Space 鍵
-切換不同夢境維度（不同顏色與氛圍）
-⌨ B 鍵
-開啟「黑洞模式」，畫面粒子會被中心吸引
-⌨ S 鍵
-截圖並下載當前夢境畫面</pr></h4>
+
 <script src="https://cdn.jsdelivr.net/npm/p5@1.9.4/lib/p5.min.js"></script>
 </head>
 
 <body>
 
+<!-- 🌌 Landing -->
 <div id="landing">
   <h1>DREAM PORTAL</h1>
-  <p>Move • Click • Space • B</p>
+  <p>Enter the Dream Dimension</p>
 
   <button id="startBtn">ENTER</button>
+</div>
+
+<!-- 📖 HUD 說明 -->
+<div id="hud">
+  <div class="box">
+    <h2>Controls</h2>
+
+    <p>🖱 Move Mouse → Distort Portal</p>
+    <p>👆 Click → Create Rift</p>
+    <p>⌨ Space → Change Dimension</p>
+    <p>⌨ B → Black Hole Mode</p>
+    <p>⌨ S → Save Image</p>
+
+    <p class="hint">Click to hide</p>
+  </div>
 </div>
 
 <script src="script.js"></script>
