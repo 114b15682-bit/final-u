@@ -5,6 +5,7 @@ let orbs = [];
 
 let theme = 0;
 let blackHole = false;
+
 let shake = 0;
 
 let colors = [
@@ -23,7 +24,9 @@ let dreams = [
 
 let currentDream = "";
 
+/* 🚀 p5 setup */
 function setup(){
+
   createCanvas(windowWidth, windowHeight);
 
   for(let i=0;i<400;i++){
@@ -37,18 +40,30 @@ function setup(){
 
   currentDream = random(dreams);
 
-  // 📖 HUD 點擊關閉（只會關一次，不會誤消失）
-  let hud = document.getElementById("hud");
+  // 📖 HUD 點擊關閉（穩定版）
+  const hud = document.getElementById("hud");
 
-  hud.addEventListener("click", () => {
-    hud.style.opacity = 0;
+  if(hud){
+    hud.addEventListener("click", () => {
+      hud.style.opacity = 0;
+      setTimeout(() => {
+        hud.style.display = "none";
+      }, 500);
+    });
+  }
 
-    setTimeout(() => {
-      hud.style.display = "none";
-    }, 600);
-  });
+  // 🚀 START 按鈕（修正重點！！）
+  const btn = document.getElementById("startBtn");
+
+  if(btn){
+    btn.addEventListener("click", () => {
+      document.getElementById("landing").style.display = "none";
+      started = true;
+    });
+  }
 }
 
+/* 🎨 draw loop */
 function draw(){
 
   if(!started){
@@ -61,7 +76,6 @@ function draw(){
   background(5,10,20,25);
 
   shake *= 0.9;
-
   translate(random(-shake,shake), random(-shake,shake));
 
   drawParticles();
@@ -79,7 +93,6 @@ function drawParticles(){
     fill(255,120);
     circle(p.x,p.y,p.s);
 
-    // 黑洞（不會破壞畫面版本）
     if(blackHole){
 
       let dx = width/2 - p.x;
@@ -102,7 +115,7 @@ function drawParticles(){
   }
 }
 
-/* 💫 能量球 */
+/* 💫 點擊能量球 */
 function drawOrbs(){
 
   for(let i=orbs.length-1;i>=0;i--){
@@ -135,7 +148,6 @@ function drawPortal(c){
   noFill();
   strokeWeight(2);
 
-  // 多層能量圈
   for(let i=0;i<5;i++){
 
     stroke(c[0],c[1],c[2],80-i*12);
@@ -160,7 +172,6 @@ function drawPortal(c){
     endShape(CLOSE);
   }
 
-  // 核心漩渦
   stroke(c[0],c[1],c[2]);
   strokeWeight(3);
 
@@ -168,10 +179,7 @@ function drawPortal(c){
 
   for(let a=0;a<TWO_PI;a+=0.04){
 
-    let n = noise(
-      cos(a)+t*2,
-      sin(a)+t*2
-    );
+    let n = noise(cos(a)+t*2, sin(a)+t*2);
 
     let r = 90 + n*140;
 
@@ -183,7 +191,6 @@ function drawPortal(c){
 
   endShape(CLOSE);
 
-  // 核心光球
   noStroke();
   fill(c[0],c[1],c[2],150);
 
@@ -236,15 +243,7 @@ function keyPressed(){
   }
 }
 
-/* 🚀 開始 */
-window.onload = () => {
-
-  document.getElementById("startBtn").onclick = () => {
-    document.getElementById("landing").style.display = "none";
-    started = true;
-  };
-};
-
+/* 📐 resize */
 function windowResized(){
   resizeCanvas(windowWidth, windowHeight);
 }
